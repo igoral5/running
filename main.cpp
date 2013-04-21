@@ -103,7 +103,7 @@ try
 			(*led_on)->set(GPIO::HIGH);
 		}
 		old_button_stat = new_button_stat;
-		usleep(300000);
+		usleep(100000);
 	}
 	return EXIT_SUCCESS;
 }
