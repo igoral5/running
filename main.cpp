@@ -22,6 +22,19 @@ sig_handler(int signo)
 	work = false;
 }
 
+void
+set_all(std::vector<std::tr1::shared_ptr<GPIO> >& vec, GPIO::Level value)
+{
+	std::vector<std::tr1::shared_ptr<GPIO> >::iterator it = vec.begin();
+	std::vector<std::tr1::shared_ptr<GPIO> >::iterator it_end = vec.end();
+	for (; it != it_end; ++it)
+	{
+		(*it)->set(value);
+	}
+}
+
+enum Mode {SINGLE, IGNITION, SHUTDOWN};
+
 int
 main(int argc, char *argv[])
 try
@@ -42,22 +55,55 @@ try
 	leds.push_back(std::tr1::shared_ptr<GPIO>(new GPIO(23, GPIO::OUT, GPIO::HIGH, GPIO::HIGH)));
 	GPIO button(24, GPIO::IN);
 	GPIO::Level old_button_stat = GPIO::HIGH;
+	Mode mode = SINGLE;
 	std::vector<std::tr1::shared_ptr<GPIO> >::iterator led_on = leds.begin();
 	while (work)
 	{
 		GPIO::Level new_button_stat = button.get();
 		if (old_button_stat == GPIO::HIGH && new_button_stat == GPIO::LOW)
 		{
-			(*led_on)->set(GPIO::HIGH);
-			led_on++;
-			if (led_on == leds.end())
+			if (mode == SINGLE)
 			{
-				led_on = leds.begin();
+				mode = IGNITION;
 			}
+			else
+			{
+				mode = SINGLE;
+			}
+			set_all(leds, GPIO::HIGH);
+			led_on = leds.begin();
 			(*led_on)->set(GPIO::LOW);
 		}
+		if (mode == SHUTDOWN || mode == SINGLE)
+		{
+			(*led_on)->set(GPIO::HIGH);
+		}
+		led_on++;
+		if (led_on == leds.end())
+		{
+			led_on = leds.begin();
+			if (mode != SINGLE )
+			{
+				if (mode == IGNITION)
+				{
+					mode = SHUTDOWN;
+				}
+				else
+				{
+					mode = IGNITION;
+				}
+			}
+		}
+		if (mode == IGNITION || mode == SINGLE)
+		{
+			(*led_on)->set(GPIO::LOW);
+		}
+		else
+		{
+			(*led_on)->set(GPIO::HIGH);
+		}
 		old_button_stat = new_button_stat;
-		usleep(100000);
+		usleep(300000);
 	}
 	return EXIT_SUCCESS;
 }
