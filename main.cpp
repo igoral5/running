@@ -48,7 +48,7 @@ try
 		throw std::runtime_error("Error set signal handler");
 	}
 	std::vector<std::tr1::shared_ptr<GPIO> > leds;
-	leds.push_back(std::tr1::shared_ptr<GPIO>(new GPIO(17, GPIO::OUT, GPIO::LOW, GPIO::HIGH)));
+	leds.push_back(std::tr1::shared_ptr<GPIO>(new GPIO(0, GPIO::OUT, GPIO::LOW, GPIO::HIGH)));
 	leds.push_back(std::tr1::shared_ptr<GPIO>(new GPIO(18, GPIO::OUT, GPIO::HIGH, GPIO::HIGH)));
 	leds.push_back(std::tr1::shared_ptr<GPIO>(new GPIO(27, GPIO::OUT, GPIO::HIGH, GPIO::HIGH)));
 	leds.push_back(std::tr1::shared_ptr<GPIO>(new GPIO(22, GPIO::OUT, GPIO::HIGH, GPIO::HIGH)));
